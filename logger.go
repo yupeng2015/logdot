@@ -173,6 +173,8 @@ func (w *DailyWriter) SwitchPath(path string) {
 	if err != nil {
 		panic("打开文件:" + path + "失败, err:" + err.Error())
 	}
+	w.file.Close()
+	w.file = nil
 	w.path = path
 	w.file = file
 }
