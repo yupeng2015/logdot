@@ -9,9 +9,6 @@ import (
 	"time"
 )
 
-const PathSep = string(os.PathSeparator) // PathSeparator 目录分隔符
-const LineSep = "\r\n"                   // LineSeparator 行分隔符
-
 type Logdot struct {
 	*Logger
 	MultipleLogger map[string]*Logger
@@ -38,6 +35,11 @@ func (this *Logger) Info(s ...any) {
 
 func (this *Logger) Infof(s string, v ...any) {
 	this.Log.Output(2, fmt.Sprintf(s, v...))
+}
+
+func (this *Logger) Debug(s ...any) {
+	content := this.SetContent("DEBUG", s)
+	this.Log.Output(2, fmt.Sprintln(content...))
 }
 
 func (this *Logger) Warn(s ...any) {
