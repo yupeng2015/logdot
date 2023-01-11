@@ -97,8 +97,9 @@ func (w *PrintWriter) Write(p []byte) (n int, err error) {
 /*
 创建并返回一个写入文件的通道
 内部有一个协程负责将通道中的数据写入到文件中
-dir是文件目录
-format是文件名格式，可以根据写入时间生成文件名
+dir是文件目录,这个给是固定目录
+format是文件名格式，可以根据写入时间生成文件名，完整分片变化得文件路径
+声明路径时，format是时间可变化得路径
 */
 func FileChan(dir string, format string) chan []byte {
 	if err := os.MkdirAll(dir, 0777); err != nil {
@@ -118,7 +119,9 @@ func FileChan(dir string, format string) chan []byte {
 			}
 			if file == nil {
 				var err error
-				file, err = os.OpenFile(dir+name, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+				p := filepath.Dir(name)
+				createDir := dir + p //动态创建新分片得日志所在目录，如果不提前创建目录则会报错
+				file, err = os.OpenFile(createDir, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
 				if err != nil {
 					fmt.Println("打开文件失败", err)
 					return
