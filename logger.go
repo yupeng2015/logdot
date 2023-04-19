@@ -24,8 +24,10 @@ type Logger struct {
 }
 
 // 原始数据打印
-func (this *Logger) Print(s string) {
-	this.Log.Output(2, fmt.Sprintln(s))
+func (this *Logger) Print(s ...any) {
+	this.Log.SetFlags(0)
+	content := this.SetContent("", s)
+	this.Log.Output(2, fmt.Sprintln(content...))
 }
 
 func (this *Logger) Info(s ...any) {
@@ -57,7 +59,11 @@ func (this *Logger) Errorf(s string, v ...any) {
 
 func (this *Logger) SetContent(level string, s []any) []any {
 	arr := make([]any, len(s)+1)
-	arr[0] = "[" + level + "]"
+	if level == "" {
+		arr[0] = ""
+	} else {
+		arr[0] = "[" + level + "]"
+	}
 	copy(arr[1:], s)
 	return arr
 }
@@ -209,15 +215,19 @@ func (g *ConsoleWriter) Write(p []byte) (n int, err error) {
 type Option struct {
 	Dir          string
 	File         string
-	SpecificFile map[string]string
+	SpecificFile map[string]Option
 	Stdout       bool
+	Flag         int
 }
 
 func Create(opt Option) (dot *Logdot) {
 	dot = &Logdot{}
 	dot.MultipleLogger = make(map[string]*Logger)
 	for k, v := range opt.SpecificFile {
-		MultipleWriter := loadOpt(opt.Dir, v)
+		MultipleWriter := loadOpt(v.Dir, v.File)
+		if v.Stdout {
+			MultipleWriter = append(MultipleWriter, os.Stdout)
+		}
 		ml := &Logger{
 			Log: log.New((*ConsoleWriter)(&MultipleWriter), "", log.LstdFlags|log.Lshortfile),
 		}
