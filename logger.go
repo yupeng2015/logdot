@@ -42,6 +42,10 @@ func (this *Logger) Debug(s ...any) {
 	this.Log.Output(2, fmt.Sprintln(content...))
 }
 
+func (this *Logger) Debugf(s string, v ...any) {
+	this.Log.Output(2, fmt.Sprintf(s, v...))
+}
+
 func (this *Logger) Warn(s ...any) {
 	content := this.SetContent("WARN", s)
 	this.Log.Output(2, fmt.Sprintln(content...))
